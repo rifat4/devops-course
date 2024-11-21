@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# Script to find assignments which have not been graded
 # Filename: missing_grade.py
 import json, os
 import argparse, requests
@@ -34,6 +35,7 @@ def task_to_set(task_name, canvas_set):
 def get_group_categories():
     url = "{0}/api/v1/courses/{1}/group_categories".format(CANVAS_URL, CANVAS_COURSE_ID)
     r = requests.get(url, headers={'Authorization': 'Bearer ' + CANVAS_TOKEN})
+    if 'next' in r.links: raise Exception("need to implement paging")
     return {group["name"]: group["id"] for group in json.loads(r.content)}
 
 
@@ -41,6 +43,7 @@ def get_group_categories():
 def get_assignments():
     url = "{0}/api/v1/courses/{1}/assignments".format(CANVAS_URL, CANVAS_COURSE_ID)
     r = requests.get(url, headers={'Authorization': 'Bearer ' + CANVAS_TOKEN})
+    if 'next' in r.links: raise Exception("need to implement paging")
     return {assignment["name"]: assignment["id"] for assignment in json.loads(r.content)}
 
 
@@ -48,12 +51,14 @@ def get_assignments():
 def list_groups(id_group_category):
     url = "{0}/api/v1/group_categories/{1}/groups?per_page=200".format(CANVAS_URL, id_group_category)
     r = requests.get(url, headers={'Authorization': 'Bearer ' + CANVAS_TOKEN})
+    if 'next' in r.links: raise Exception("need to implement paging")
     return {group["name"]: group["id"] for group in json.loads(r.content)}
 
 # Get groups members -> name : id
 def get_group_members(id_group):
     url = "{0}/api/v1/groups/{1}/users".format(CANVAS_URL, id_group)
     r = requests.get(url, headers={'Authorization': 'Bearer ' + CANVAS_TOKEN})
+    if 'next' in r.links: raise Exception("need to implement paging")
     return {member["name"]: member["id"] for member in json.loads(r.content)}
 
 
@@ -76,7 +81,8 @@ def check_group_grading(groups, id_assignment):
             
             # {'include[]': "submission_comments"} is a non-documented flag provided by colleague Chip Maguire
             r = requests.get(canvas_url, headers={'Authorization': 'Bearer ' + CANVAS_TOKEN}, params = {'include[]': "submission_comments"})
-            
+            if 'next' in r.links: raise Exception("need to implement paging")
+
             comments = [x for x in r.json()["submission_comments"]]
             
             last_comment = comments[-1]["comment"] if len(comments)>0 else ""
