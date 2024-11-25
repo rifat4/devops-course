@@ -67,6 +67,9 @@ This script is used to grade each student according to the number of task comple
 ## track_participation.py
 
 Script used to track and display valid comments on lecture participation issue.
+Two files needs to be updated for each new year.
+1. Issue number in the [workflow file](https://github.com/KTH/devops-course/blob/d619654e15b89ebc504cf4a54ff119eaa8a9fdce/.github/workflows/lecture_participation.yml#L13).
+2. Lecture times [here](https://github.com/KTH/devops-course/blob/2024/tools/track_participation_config.json).
 
 ### Requirements
 
